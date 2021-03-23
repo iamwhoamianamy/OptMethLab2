@@ -60,7 +60,7 @@ int main()
    //}
 
    DanPshen dp = DanPshen(2);
-   vector<double> x0 = { 2 , 2 };
+   vector<double> x0 = { 10 , -5 };
    vector<double> prec = { 1 , 1 };
 
    //for(int i = 10; i > -20; i--)
@@ -76,7 +76,7 @@ int main()
    //   cout << endl;
    //}
 
-   int k = dp.FindExtremum(f1, x0, 1e-6, pow(10, -10));
+   int k = dp.FindExtremum(f1, x0, 1e-2, pow(10, -10));
 
    cout << setw(16) << abs(dp.xk[0] - prec[0]) << " ";
    cout << setw(16) << abs(dp.xk[1] - prec[1]) << " ";

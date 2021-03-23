@@ -43,6 +43,7 @@ public:
       Sk *= -1;
 
       xk = x0;
+      bool exit_flag;
 
       int iter_count = 0;
       do
@@ -63,9 +64,17 @@ public:
          // 4. Определение новго направления Sk1
          Sk = -1 * grad_xk1 + omega * Sk;
 
+
+         exit_flag = true;
+
+         for(int i = 0; i < size; i++)
+            if(abs(xk[i] - xk1[i]) > 1e-16)
+               exit_flag = false;
+
          xk = xk1;
          iter_count++;
-      } while(Norm(Sk) > eps);
+
+      } while(Norm(Sk) > eps && iter_count < 10000 && exit_flag == false);
 
       return iter_count;
    }
@@ -93,9 +102,9 @@ public:
 
          res[i] = funct(t);
 
-         t[i] += 2.0 * grad_eps;
+         t[i] = point[i] + grad_eps;
 
-         res[i] += funct(t);
+         res[i] -= funct(t);
 
          res[i] /= 2.0 * grad_eps;
       }

@@ -31,7 +31,7 @@ public:
    // Поиск аргумента минимума функции методом золотого сечения
    double FindMinArg(double funct(const vector<double>&), const double& eps)
    {
-      double a = -50, b = 100;
+      double a = -500, b = 1000;
       double x1 = a + (3 - SQRT5) / 2 * (b - a);
       double x2 = a + (SQRT5 - 1) / 2 * (b - a);
       double f1, f2, a1, b1;
