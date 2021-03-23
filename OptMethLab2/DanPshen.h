@@ -65,13 +65,13 @@ public:
 
          xk = xk1;
          iter_count++;
-      } while(Norm(Sk) > eps && iter_count < 2);
+      } while(Norm(Sk) > eps);
 
       return iter_count;
    }
 
 
-   void CalcGrad(double funct(const vector<double>&), const vector<double>& point, vector<double>& res, const double& grad_eps)
+   /*void CalcGrad(double funct(const vector<double>&), const vector<double>& point, vector<double>& res, const double& grad_eps)
    {
       for(int i = 0; i < size; i++)
       {
@@ -81,6 +81,23 @@ public:
          t[i] += grad_eps;
          res[i] += funct(t);
          res[i] /= grad_eps;
+      }
+   }*/
+
+   void CalcGrad(double funct(const vector<double>&), const vector<double>& point, vector<double>& res, const double& grad_eps)
+   {
+      for(int i = 0; i < size; i++)
+      {
+         t = point;
+         t[i] -= grad_eps;
+
+         res[i] = funct(t);
+
+         t[i] += 2.0 * grad_eps;
+
+         res[i] += funct(t);
+
+         res[i] /= 2.0 * grad_eps;
       }
    }
 };
