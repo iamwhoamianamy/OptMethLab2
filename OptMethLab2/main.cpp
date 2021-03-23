@@ -1,5 +1,7 @@
 ﻿#include <iostream>
 #include <vector>
+#include "DanPshen.h"
+#include "GoldenRatio.h"
 
 using namespace std;
 
@@ -32,25 +34,9 @@ double f3(const vector<double>& x)
    return half_1 + half_2;
 }
 
-void calc_grad(double funct(const vector<double>&), const vector<double>& point, vector<double>& res)
+double f4(const vector<double>& x)
 {
-   int n = point.size();
-   const double eps = 1e-8;
-
-   for(int i = 0; i < n; i++)
-   {
-      vector<double> t(n);
-
-      t[i] = point[i];
-
-      res[i] = -funct(t);
-
-      t[i] += eps;
-
-      res[i] += funct(t);
-
-      res[i] /= eps;
-   }
+   return x[0] * x[0]  + x[1] * x[1] - 2;
 }
 
 double f(const vector<double>& x)
@@ -60,12 +46,10 @@ double f(const vector<double>& x)
 
 int main()
 {
-   vector<double> vec = { 0, 2 };
-   vector<double> res(2);
-   calc_grad(f, vec, res);
+   DanPshen dp = DanPshen(2);
+   vector<double> x0 = { 10 ,7 };
 
-
-
+   dp.FindExtremum(f1, x0, 1e-8);
 
    int asd = 1111;
 }
