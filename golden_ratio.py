@@ -1,4 +1,4 @@
-def calc_min(a, b, eps, f):
+def calc_min(f, k, a, b, eps):
    SQRT5 = 5**(1 / 2)
    x1 = a + (3 - SQRT5) / 2 * (b - a)
    x2 = a + (SQRT5 - 1) / 2 * (b - a)
@@ -11,8 +11,8 @@ def calc_min(a, b, eps, f):
    n = 0
 
    while abs(b - a) > eps:
-      f1 = f(x1)
-      f2 = f(x2)
+      f1 = f(x1)[k]
+      f2 = f(x2)[k]
       a1 = a
       b1 = b
 
