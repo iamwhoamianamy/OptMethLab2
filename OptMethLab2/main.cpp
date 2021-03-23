@@ -1,7 +1,8 @@
 ﻿#include <iostream>
 #include <vector>
+#include <iomanip>
 #include "DanPshen.h"
-#include "GoldenRatio.h"
+#include "Function.h"
 
 using namespace std;
 
@@ -36,7 +37,7 @@ double f3(const vector<double>& x)
 
 double f4(const vector<double>& x)
 {
-   return x[0] * x[0]  + x[1] * x[1] - 2;
+   return (x[0] - 2) * (x[0] - 2) + (x[1] - 4) * (x[1] - 4) + 1;
 }
 
 double f(const vector<double>& x)
@@ -46,10 +47,34 @@ double f(const vector<double>& x)
 
 int main()
 {
-   DanPshen dp = DanPshen(2);
-   vector<double> x0 = { 10 ,7 };
+   //for(int i = 10; i > -20; i--)
+   //{
+   //   DanPshen dp = DanPshen(2);
+   //   vector<double> x0 = { 2 , 2 };
+   //   vector<double> res(2);
 
-   dp.FindExtremum(f1, x0, 1e-8);
+   //   dp.CalcGrad(f1, x0, res, pow(10, i));
+
+   //   cout << fixed << setw(4) << i;
+   //   cout << scientific << setw(16) << abs(2.0 - res[0]) << " " << abs(0 - res[1]) << endl;
+   //}
+
+   DanPshen dp = DanPshen(2);
+   vector<double> x0 = { 2 , 2 };
+   vector<double> prec = { 1 , 1 };
+
+   for(int i = 10; i > -20; i--)
+   {
+      int k = dp.FindExtremum(f1, x0, 1e-8, pow(10, i));
+
+      cout << fixed << setw(4) << i;
+      cout << scientific;
+      //for(size_t i = 0; i < dp.xk.size(); i++)
+      cout << setw(16) << abs(dp.xk[0] - prec[0]) << " ";
+      cout << setw(16) << abs(dp.xk[1] - prec[1]) << " ";
+      cout << Norm(dp.xk - prec);
+      cout << endl;
+   }
 
    int asd = 1111;
 }
