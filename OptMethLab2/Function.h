@@ -28,10 +28,72 @@ public:
       return funct(xk + lambda * Sk);
    }
 
-   // Поиск аргумента минимума функции методом золотого сечения
-   double FindMinArg(double funct(const vector<double>&), const double& eps)
+   void FindSegmentWithMin(const double& delta, double funct(const vector<double>&), double& a, double& b)
    {
-      double a = -500, b = 1000;
+      int k = 1;
+      double x0 = 0;
+      double xk, xk1, xk_1, h = 2;
+
+      double f = GetValue(funct, x0);
+      if(f == GetValue(funct, x0 + delta))
+      {
+         a = x0;
+         b = x0 + delta;
+         return;
+      }
+      else if(f == GetValue(funct, x0 - delta))
+      {
+         a = x0 - delta;
+         b = x0;
+         return;
+      }
+      else
+      {
+         if(f > GetValue(funct, x0 + delta))
+         {
+            xk = x0 + delta;
+            h = delta;
+         }
+         else if(f > GetValue(funct, x0 - delta))
+         {
+            xk = x0 - delta;
+            h = -delta;
+         }
+         else
+         {
+            a = x0 - delta;
+            b = x0 + delta;
+            return;
+         }
+
+         xk_1 = x0;
+
+         bool exit = false;
+         do
+         {
+            h *= 2;
+            xk1 = xk + h;
+
+            if(GetValue(funct, xk) > GetValue(funct, xk1))
+            {
+               xk_1 = xk;
+               xk = xk1;
+               k++;
+            }
+            else
+               exit = true;
+         } while(!exit);
+
+         a = xk_1;
+         b = xk;
+      }
+   }
+
+   // Поиск аргумента минимума функции методом золотого сечения
+   double FindMinArgGolden(double funct(const vector<double>&), const double& eps)
+   {
+      double a = 0, b = 0;
+      FindSegmentWithMin(1, funct, a, b);
       double x1 = a + (3 - SQRT5) / 2 * (b - a);
       double x2 = a + (SQRT5 - 1) / 2 * (b - a);
       double f1, f2, a1, b1;
@@ -57,6 +119,12 @@ public:
       }
 
       return a;
+   }
+
+   // Поиск аргумента минимума функции методом парабол
+   double FindMinArgPar(double funct(const vector<double>&), const double& eps)
+   {
+
    }
 
   /* void FindSegmentWithMin(double x0, const double& DELTA,
