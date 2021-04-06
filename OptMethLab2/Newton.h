@@ -19,6 +19,8 @@ public:
 
    vector<double> Sk;          // Напрвление поиска
 
+   int f_calc_count = 0;      // Число вычислений функции
+
    Newton() : size(2)
    {
       H.resize(2, vector<double>(2));
@@ -79,11 +81,13 @@ public:
    
 
    int FindExtremum(double funct(const vector<double>&),
-                    double min_max(double f(const vector<double>&), const vector<double>&, const vector<double>&, const double&),
+                    int min_max(double f(const vector<double>&), const vector<double>&, const vector<double>&, const double&, double&),
                     const vector<double>& x0,
                     const double& f_eps, const double& xs_eps, const double& grad_eps,
                     ofstream& fout)
    {
+
+      f_calc_count = 0;
       fout << setw(3) << "k";
       fout << setw(14) << "x" << setw(14) << "y" << setw(14) << "f(x, y)";
       fout << setw(14) << "Sx" << setw(14) << "Sy" << setw(14) << "lambda";
@@ -98,6 +102,7 @@ public:
       do
       {
          CalcHessian(funct, xk, 1e-3);
+         f_calc_count += 11;
          CalcInverseHessian();
 
          if(!(IH[0][0] > 0 && IH[0][0] * IH[1][1] - IH[1][0] * IH[0][1] > 0))
@@ -110,12 +115,14 @@ public:
 
          
          CalcGrad(funct, xk, grad, grad_eps);
+         f_calc_count += 4;
          grad *= -1;
 
          MatVecMult(IH, grad, Sk);
 
          // Минимизация функции f по направлению Sk
-         double lambda = min_max(funct, xk, Sk, 1e-15);
+         double lambda;
+         f_calc_count += min_max(funct, xk, Sk, 1e-15, lambda) + 1;
          
          // Получение нового приближения
          xk1 = xk + lambda * Sk;
@@ -139,7 +146,7 @@ public:
          xk = xk1;
          iter_count++;
 
-      } while(iter_count < 100 && exit_flag == false);
+      } while(iter_count < 1000 && exit_flag == false);
 
       fout << endl;
       return iter_count;

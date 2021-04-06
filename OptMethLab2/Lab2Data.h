@@ -50,26 +50,26 @@ double f(const vector<double>& x)
    return 2 * x[0] + pow(x[1], 3);
 }
 
-void FindSegmentWithMin(const double& delta, double funct(const vector<double>&),
+// Поиск отрезка с минимумом функции
+int FindSegmentWithMin(const double& delta, double funct(const vector<double>&),
                         const vector<double>& x, const vector<double>& Sk, double& a, double& b)
 {
-   int k = 1;
    double x0 = 0;
    double xk, xk1, xk_1, h = 2;
-
    double f = funct(x + (x0) * Sk);
+   int f_calc_count = 1;
 
    if(f == funct(x + (x0 + delta) * Sk))
    {
       a = x0;
       b = x0 + delta;
-      return;
+      return 2;
    }
    else if(f == funct(x + (x0 - delta) * Sk))
    {
       a = x0 - delta;
       b = x0;
-      return;
+      return 3;
    }
    else
    {
@@ -77,17 +77,19 @@ void FindSegmentWithMin(const double& delta, double funct(const vector<double>&)
       {
          xk = x0 + delta;
          h = delta;
+         f_calc_count++;
       }
       else if(f > funct(x + (x0 - delta) * Sk))
       {
          xk = x0 - delta;
          h = -delta;
+         f_calc_count += 2;
       }
       else
       {
          a = x0 - delta;
          b = x0 + delta;
-         return;
+         return f_calc_count + 2;
       }
 
       xk_1 = x0;
@@ -102,70 +104,77 @@ void FindSegmentWithMin(const double& delta, double funct(const vector<double>&)
          {
             xk_1 = xk;
             xk = xk1;
-            k++;
          }
          else
             exit = true;
+
+         f_calc_count += 2;
       } while(!exit);
 
       a = xk_1;
       b = xk;
    }
+   return f_calc_count;
 }
 
 // Поиск аргумента минимума функции вдоль направления методом золотого сечения
-double FindMinArgGolden(double funct(const vector<double>&),
-                        const vector<double>& x, const vector<double>& Sk, const double& eps)
+int FindMinArgGolden(double funct(const vector<double>&),
+                        const vector<double>& x, const vector<double>& Sk, const double& eps, double& result)
 {
    double a = 0, b = 0;
-   FindSegmentWithMin(0.1, funct, x, Sk, a, b);
+   int f_calc_count = FindSegmentWithMin(0.1, funct, x, Sk, a, b);
+
    double x1 = a + (3 - SQRT5) / 2 * (b - a);
    double x2 = a + (SQRT5 - 1) / 2 * (b - a);
-   double f1, f2, a1, b1;
+   double f1 = funct(x + (x1)*Sk);
+   double f2 = funct(x + (x2)*Sk);
+   double a1, b1;
 
-   int n = 0;
-   for(; abs(b - a) > eps; n++)
+   int iter_count = 0;
+   for(; abs(b - a) > eps; iter_count++)
    {
-      f1 = funct(x + (x1)*Sk), f2 = funct(x + (x2)*Sk);
       a1 = a, b1 = b;
-
       if(f1 < f2)
       {
          b = x2;
          x2 = x1;
          x1 = a + (3 - SQRT5) / 2 * (b - a);
+         f2 = f1;
+         f1 = funct(x + (x1)*Sk);
       }
       else
       {
          a = x1;
          x1 = x2;
          x2 = a + (SQRT5 - 1) / 2 * (b - a);
+         f1 = f2;
+         f2 = funct(x + (x2)*Sk);
       }
    }
-
-   return a;
+   result =  a;
+   return iter_count + f_calc_count;
 }
 
-void FindSegmentWithMax(const double& delta, double funct(const vector<double>&),
+// Поиск отрезка с максимумом функции
+int FindSegmentWithMax(const double& delta, double funct(const vector<double>&),
                         const vector<double>& x, const vector<double>& Sk, double& a, double& b)
 {
-   int k = 1;
    double x0 = 0;
    double xk, xk1, xk_1, h = 2;
-
-   double f = funct(x + (x0)*Sk);
+   double f = funct(x + (x0) * Sk);
+   int f_calc_count = 1;
 
    if(f == funct(x + (x0 + delta) * Sk))
    {
       a = x0;
       b = x0 + delta;
-      return;
+      return 2;
    }
    else if(f == funct(x + (x0 - delta) * Sk))
    {
       a = x0 - delta;
       b = x0;
-      return;
+      return 3;
    }
    else
    {
@@ -173,80 +182,81 @@ void FindSegmentWithMax(const double& delta, double funct(const vector<double>&)
       {
          xk = x0 - delta;
          h = -delta;
+         f_calc_count++;
       }
       else if(f > funct(x + (x0 - delta) * Sk))
       {
          xk = x0 + delta;
          h = delta;
+         f_calc_count += 2;
       }
       else
       {
          a = x0 - delta;
          b = x0 + delta;
-         return;
+         return f_calc_count + 2;
       }
 
       xk_1 = x0;
 
       bool exit = false;
-      int iter_count = 0;
       do
       {
          h *= 2;
          xk1 = xk + h;
 
-         if(funct(x + (xk)*Sk) > funct(x + (xk1)*Sk))
+         if(funct(x + (xk) * Sk) > funct(x + (xk1) * Sk))
          {
             xk_1 = xk;
             xk = xk1;
-            k++;
          }
          else
             exit = true;
-         iter_count++;
 
-         if(iter_count == 1000)
-         {
-            cout << "Cant find...";
-            return;
-         }
-
+         f_calc_count += 2;
       } while(!exit);
 
       a = xk_1;
       b = xk;
    }
+
+   return f_calc_count;
 }
 
 // Поиск аргумента максимума функции вдоль направления методом золотого сечения
-double FindMaxArgGolden(double funct(const vector<double>&),
-                        const vector<double>& x, const vector<double>& Sk, const double& eps)
+int FindMaxArgGolden(double funct(const vector<double>&),
+                        const vector<double>& x, const vector<double>& Sk, const double& eps, double& result)
 {
    double a = 0, b = 0;
-   FindSegmentWithMax(0.1, funct, x, Sk, a, b);
+   int f_calc_count = FindSegmentWithMax(0.1, funct, x, Sk, a, b);
+
    double x1 = a + (3 - SQRT5) / 2 * (b - a);
    double x2 = a + (SQRT5 - 1) / 2 * (b - a);
-   double f1, f2, a1, b1;
+   double f1 = funct(x + (x1) * Sk);
+   double f2 = funct(x + (x2) * Sk);
+   double a1, b1;
 
-   int n = 0;
-   for(; abs(b - a) > eps; n++)
+   int iter_count = 0;
+   for(; abs(b - a) > eps; iter_count++)
    {
-      f1 = funct(x + (x1)*Sk), f2 = funct(x + (x2)*Sk);
       a1 = a, b1 = b;
-
       if(f1 > f2)
       {
          b = x2;
          x2 = x1;
          x1 = a + (3 - SQRT5) / 2 * (b - a);
+         f2 = f1;
+         f1 = funct(x + (x1) * Sk);
       }
       else
       {
          a = x1;
          x1 = x2;
          x2 = a + (SQRT5 - 1) / 2 * (b - a);
+         f1 = f2;
+         f2 = funct(x + (x2) * Sk);
       }
    }
-
-   return a;
+   result = a;
+   return iter_count + f_calc_count;
 }

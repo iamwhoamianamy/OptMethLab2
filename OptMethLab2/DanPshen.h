@@ -16,6 +16,8 @@ public:
 
    vector<double> grad_xk1;   // Вспомогательный вектор для нахождения экстремума
    vector<double> t;          // Вспомогательный вектор для нахождения градиента
+   
+   int f_calc_count = 0;      // Число вычислений функции
 
    DanPshen() : size(0)
    {
@@ -33,18 +35,18 @@ public:
       t.resize(size);
    }
 
-   void FindExtremum(double funct(const vector<double>&),
-                     double min_max(double f(const vector<double>&), const vector<double>&, const vector<double>&, const double&),
-                     const vector<double>& x0,
-                     const double& f_eps, const double& xs_eps, const double& grad_eps,
-                     ofstream& fout)
+   int FindExtremum(double funct(const vector<double>&),
+                    int min_max(double f(const vector<double>&), const vector<double>&, const vector<double>&, const double&, double&),
+                    const vector<double>& x0,
+                    const double& f_eps, const double& xs_eps, const double& grad_eps,
+                    ofstream& fout)
    {
+      f_calc_count = 0;
       // 1. Расчет градиента функции f в точке x0
       CalcGrad(funct, x0, Sk, grad_eps);
+      f_calc_count += 4;
       Sk *= -1;
       xk = x0;
-      bool exit_flag;
-
 
       fout << setw(3) << "k";
       fout << setw(14) << "x" << setw(14) << "y" << setw(14) << "f(x, y)";
@@ -52,12 +54,14 @@ public:
       fout << setw(14) << "|xk - x(k-1)|" << setw(14) << "|yk - y(k-1)|" << setw(14) << "|fk - f(k-1)|";
       fout << setw(14) << "angle" << endl;
 
+      bool exit_flag;
       int iter_count = 0;
       do
       {
          // 2. Минимизация функции f по направлению Sk
          //Function to_minimize = Function(xk, Sk);
-         double lambda = min_max(funct, xk, Sk, 1e-15);
+         double lambda;
+         f_calc_count += min_max(funct, xk, Sk, 1e-15, lambda) + 1;
 
          // Получение нового приближения
          xk1 = xk + lambda * Sk;
@@ -72,9 +76,10 @@ public:
 
          // 3. Вычисление grad(f(xk1)) и весового коэффициента omega
          CalcGrad(funct, xk1, grad_xk1, grad_eps);
+         f_calc_count += 4;
          //gradf1(xk1, grad_xk1);
 
-         //double omega = (-1 * Sk * (-1 * Sk - grad_xk1)) / (grad_xk1 *(-1 * Sk));
+         //double omega = (grad_xk1 * (grad_xk1 + Sk)) / (-1 * (Sk * Sk));
          double omega = (grad_xk1 * grad_xk1) / (Sk * Sk);
 
          // 4. Определение новго направления Sk1
@@ -93,6 +98,8 @@ public:
 
       } while(Norm(Sk) > f_eps && iter_count < 100 && exit_flag == false);
       fout << endl;
+
+      return iter_count;
    }
 
    void CalcGrad(double funct(const vector<double>&), const vector<double>& point, vector<double>& res, const double& grad_eps)
