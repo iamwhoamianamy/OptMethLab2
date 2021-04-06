@@ -2,7 +2,6 @@
 #include <vector>
 #include <iomanip>
 #include "DanPshen.h"
-#include "Function.h"
 #include "Newton.h"
 
 using namespace std;
@@ -10,30 +9,51 @@ using namespace std;
 
 int main()
 {
-   //for(int i = 5; i > -20; i--)
-   {
-      int i = -8;
-      cout << fixed << "10e" << i << endl;
+   vector<double> x0 = { 2, 5 };
+   ofstream fout;
 
-      vector<double> point = { 2, 5 };
+   DanPshen dp(2);
 
-      Newton newton;
-      if(newton.FindMinimum(f1, point, 1e-14, pow(10, i)))
-      {
-         cout << "Newton: " << scientific << endl;
-         cout << setw(16) << abs(newton.xk1[0] - 1) << " ";
-         cout << setw(16) << abs(newton.xk1[1] - 1) << " " << endl;
-      }
-      DanPshen dp(2);
-      int iters = dp.FindExtremum(f1, point, 1e-14, pow(10, i));
+   // Метод Данилина-Пшеничного
+   // На первой функции
+   fout = ofstream("results/f1_pshen.txt");
+   for(int i = -3; i >= -7 ; i--)
+      dp.FindExtremum(f1, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), fout);
+   fout.close();
 
-      cout << "Pshenichniy: " << fixed << iters << scientific << endl;
-      cout << setw(16) << abs(dp.xk1[0] -1) << " ";
-      cout << setw(16) << abs(dp.xk1[1] -1) << " ";
+   // На второй функции
+   fout = ofstream("results/f2_pshen.txt");
+   for(int i = -3; i >= -7; i--)
+      dp.FindExtremum(f2, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -10), fout);
+   fout.close();
 
-      cout << endl << endl;
-   }
-   
+   // На третьей функции
+   fout = ofstream("results/f3_pshen.txt");
+   for(int i = -3; i >= -7; i--)
+      dp.FindExtremum(f3, FindMaxArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), fout);
+   fout.close();
+
+   Newton nt;
+
+   // Метод Ньютона
+   // На первой функции
+   fout = ofstream("results/f1_newton.txt");
+   for(int i = -3; i >= -7; i--)
+      nt.FindExtremum(f1, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), fout);
+   fout.close();
+
+   //// На второй функции
+   fout = ofstream("results/f2_newton.txt");
+   for(int i = -3; i >= -7; i--)
+      nt.FindExtremum(f2, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -10), fout);
+   fout.close();
+
+   //// На третьей функции
+   fout = ofstream("results/f3_newton.txt");
+   for(int i = -3; i >= -7; i--)
+      nt.FindExtremum(f3, FindMaxArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), fout);
+   fout.close();
+
 
    int asd = 1111;
    

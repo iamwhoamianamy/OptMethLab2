@@ -26,9 +26,6 @@
     <ClInclude Include="Vector.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Function.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Lab2Data.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>

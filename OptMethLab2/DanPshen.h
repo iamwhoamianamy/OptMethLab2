@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "Lab2Data.h"
-#include "Function.h"
 #include "Vector.h"
 
 class DanPshen
@@ -34,27 +33,45 @@ public:
       t.resize(size);
    }
 
-   int FindExtremum(double f(const vector<double>&), const vector<double>& x0, const double& eps, const double& grad_eps)
+   void FindExtremum(double funct(const vector<double>&),
+                     double min_max(double f(const vector<double>&), const vector<double>&, const vector<double>&, const double&),
+                     const vector<double>& x0,
+                     const double& f_eps, const double& xs_eps, const double& grad_eps,
+                     ofstream& fout)
    {
       // 1. Расчет градиента функции f в точке x0
-      CalcGrad(f, x0, Sk, grad_eps);
+      CalcGrad(funct, x0, Sk, grad_eps);
       Sk *= -1;
-
       xk = x0;
       bool exit_flag;
+
+
+      fout << setw(3) << "k";
+      fout << setw(14) << "x" << setw(14) << "y" << setw(14) << "f(x, y)";
+      fout << setw(14) << "Sx" << setw(14) << "Sy" << setw(14) << "lambda";
+      fout << setw(14) << "|xk - x(k-1)|" << setw(14) << "|yk - y(k-1)|" << setw(14) << "|fk - f(k-1)|";
+      fout << setw(14) << "angle" << endl;
 
       int iter_count = 0;
       do
       {
          // 2. Минимизация функции f по направлению Sk
-         Function to_minimize = Function(xk, Sk);
-         double lambda = to_minimize.FindMinArgGolden(f, 1e-15);
+         //Function to_minimize = Function(xk, Sk);
+         double lambda = min_max(funct, xk, Sk, 1e-15);
 
          // Получение нового приближения
          xk1 = xk + lambda * Sk;
 
+         // Блок вывода
+         fout << fixed << setw(3) << iter_count + 1;
+         fout << scientific;
+         fout << setw(14) << xk1[0] << setw(14) << xk1[1] << setw(14) << funct(xk1);
+         fout << setw(14) << Sk[0] << setw(14) << Sk[1] << setw(14) << lambda;
+         fout << setw(14) << abs(xk1[0] - xk[0]) << setw(14) << abs(xk1[1] - xk[1]) << setw(14) << funct(xk1) - funct(xk);
+         fout << setw(14) << acos((xk1[0] * Sk[0] + xk1[1] * Sk[1]) / (Norm(xk1) * Norm(Sk))) * 180 / PI << endl;
+
          // 3. Вычисление grad(f(xk1)) и весового коэффициента omega
-         CalcGrad(f, xk1, grad_xk1, grad_eps);
+         CalcGrad(funct, xk1, grad_xk1, grad_eps);
          //gradf1(xk1, grad_xk1);
 
          //double omega = (-1 * Sk * (-1 * Sk - grad_xk1)) / (grad_xk1 *(-1 * Sk));
@@ -67,15 +84,15 @@ public:
          exit_flag = true;
 
          for(int i = 0; i < size; i++)
-            if(abs(xk[i] - xk1[i]) > 1e-16)
+            if(abs(xk[i] - xk1[i]) > xs_eps)
                exit_flag = false;
 
          xk = xk1;
+
          iter_count++;
 
-      } while(Norm(Sk) > eps && iter_count < 100 && exit_flag == false);
-
-      return iter_count;
+      } while(Norm(Sk) > f_eps && iter_count < 100 && exit_flag == false);
+      fout << endl;
    }
 
    void CalcGrad(double funct(const vector<double>&), const vector<double>& point, vector<double>& res, const double& grad_eps)

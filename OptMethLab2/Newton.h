@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "Lab2Data.h"
-#include "Function.h"
 #include "Vector.h"
 
 class Newton
@@ -13,13 +12,12 @@ public:
 
    vector<double> t;           // Вспомогательный вектор для расчета Гессиана
 
-   vector<double> Sk;          // Гардиент на текущем шаге
-   vector<double> gradk_1;     // Градиент от нового приближения
+   vector<double> grad;        // Гардиент на текущем шаге
 
    vector<double> xk;          // Приближение на текущем шаге
    vector<double> xk1;         // Новое приближение
 
-   vector<double> IHgrad;      // Вспомогательный вектор для нахождения экстремума
+   vector<double> Sk;          // Напрвление поиска
 
    Newton() : size(2)
    {
@@ -27,26 +25,25 @@ public:
       IH.resize(2, vector<double>(2));
       t.resize(2);
 
-      Sk.resize(2);
-      gradk_1.resize(2);
+      grad.resize(2);
 
       xk.resize(2);
       xk1.resize(2);
 
-      IHgrad.resize(2);
+      Sk.resize(2);
       t.resize(2);
    }
 
    // Расчитать Гессиан для двумерной функции (при eps = 1 все нормально)
    void CalcHessian(double funct(const vector<double>&), const vector<double>& point, const double& eps)
    {
-      H[0][0] = (funct({ point[0] - 2 * eps, point[1] }) - 2 * funct({ point[0], point[1] }) + funct({ point[0] + 2 * eps, point[1] })) / (4 * eps * eps);
-      H[1][0] = (funct({ point[0] - eps, point[1] - eps }) -
-                 funct({ point[0] - eps, point[1] + eps }) -
-                 funct({ point[0] + eps, point[1] - eps }) +
-                 funct({ point[0] + eps, point[1] + eps })) / (4 * eps * eps);
+      H[0][0] = (funct({ point[0] + 2 * eps, point[1] }) - 2 * funct({ point[0], point[1] }) + funct({ point[0] - 2 * eps, point[1] })) / (4 * eps * eps);
+      H[1][0] = (funct({ point[0] + eps, point[1] + eps }) -
+                 funct({ point[0] + eps, point[1] - eps }) -
+                 funct({ point[0] - eps, point[1] + eps }) +
+                 funct({ point[0] - eps, point[1] - eps })) / (4 * eps * eps);
       H[0][1] = H[1][0];
-      H[1][1] = (funct({ point[0], point[1] - 2 * eps }) - 2 * funct({ point[0], point[1] }) + funct({ point[0], point[1] + 2 * eps })) / (4 * eps * eps);
+      H[1][1] = (funct({ point[0], point[1] + 2 * eps }) - 2 * funct({ point[0], point[1] }) + funct({ point[0], point[1] - 2 * eps })) / (4 * eps * eps);
    }
 
    // Расчитать обратную матрицу Гессе
@@ -81,71 +78,70 @@ public:
    }
    
 
-   int FindMinimum(double f(const vector<double>&), const vector<double>& x0, const double& eps, const double& grad_eps)
+   int FindExtremum(double funct(const vector<double>&),
+                    double min_max(double f(const vector<double>&), const vector<double>&, const vector<double>&, const double&),
+                    const vector<double>& x0,
+                    const double& f_eps, const double& xs_eps, const double& grad_eps,
+                    ofstream& fout)
    {
-      CalcHessian(f, x0, 1e-1);
+      fout << setw(3) << "k";
+      fout << setw(14) << "x" << setw(14) << "y" << setw(14) << "f(x, y)";
+      fout << setw(14) << "Sx" << setw(14) << "Sy" << setw(14) << "lambda";
+      fout << setw(14) << "|xk - x(k-1)|" << setw(14) << "|yk - y(k-1)|" << setw(14) << "|fk - f(k-1)|";
+      fout << setw(14) << "angle";
+      fout << setw(14) << "H00" << setw(14) << "H01" << setw(14) << "H10" << setw(14) << "H11" << endl;
 
-      if(H[0][0] > 0 && H[0][0] * H[1][1] - H[1][0] * H[0][1] > 0)
+      xk = x0;
+
+      bool exit_flag;
+      int iter_count = 0;
+      do
       {
+         CalcHessian(funct, xk, 1e-3);
          CalcInverseHessian();
-         CalcGrad(f, x0, Sk, grad_eps);
-         MatVecMult(IH, Sk, IHgrad);
-         xk1 = x0 - IHgrad;
 
-         return 1;
-      }
-      else
-      {
-         cout << "Hessian is not positive-defined!" << endl;
+         if(!(IH[0][0] > 0 && IH[0][0] * IH[1][1] - IH[1][0] * IH[0][1] > 0))
+         {
+            IH[0][0] = 1;
+            IH[0][1] = 0;
+            IH[1][0] = 0;
+            IH[1][1] = 1;
+         }
 
-         return 0;
-      }
-      
-      //xk = x0;
+         
+         CalcGrad(funct, xk, grad, grad_eps);
+         grad *= -1;
 
-      //bool exit_flag;
-      //int iter_count = 0;
-      //do
-      //{
-      //   CalcHessian(f, xk, 1e-1);
+         MatVecMult(IH, grad, Sk);
 
-      //   if(H[0][0] > 0 && H[0][0] * H[1][1] - H[1][0] * H[0][1] > 0)
-      //      CalcInverseHessian();
-      //   else
-      //   {
-      //      H[0][0] = abs(H[0][0]);
-      //      H[0][1] = abs(H[0][1]);
-      //      H[1][0] = abs(H[1][0]);
-      //      H[1][1] = abs(H[1][1]);
+         // Минимизация функции f по направлению Sk
+         double lambda = min_max(funct, xk, Sk, 1e-15);
+         
+         // Получение нового приближения
+         xk1 = xk + lambda * Sk;
 
-      //      CalcInverseHessian();
-      //   }
+         // Блок вывода
+         fout << fixed << setw(3) << iter_count + 1;
+         fout << scientific;
+         fout << setw(14) << xk1[0] << setw(14) << xk1[1] << setw(14) << funct(xk1);
+         fout << setw(14) << Sk[0] << setw(14) << Sk[1] << setw(14) << lambda;
+         fout << setw(14) << abs(xk1[0] - xk[0]) << setw(14) << abs(xk1[1] - xk[1]) << setw(14) << funct(xk1) - funct(xk);
+         fout << setw(14) << acos((xk1[0] * Sk[0] + xk1[1] * Sk[1]) / (Norm(xk1) * Norm(grad))) * 180 / PI;
+         fout << setw(14) << H[0][0] << setw(14) << H[0][1] << setw(14) << H[1][0] << setw(14) << H[1][1] << endl;
 
-      //   
-      //   CalcGrad(f, x0, Sk, grad_eps);
-      //   Sk *= -1;
+         // Расчет изменения решения на текущей итерации
+         exit_flag = true;
 
-      //   MatVecMult(IH, Sk, IHgrad);
+         for(int i = 0; i < size; i++)
+            if(abs(xk[i] - xk1[i]) > xs_eps)
+               exit_flag = false;
 
-      //   // Минимизация функции f по направлению Sk
-      //   Function to_minimize = Function(xk, IHgrad);
-      //   double lambda = to_minimize.FindMinArgGolden(f, 1e-15);
-      //   
-      //   // Получение нового приближения
-      //   xk1 = xk + lambda * IHgrad;
+         xk = xk1;
+         iter_count++;
 
-      //   // Расчет изменения решения на текущей итерации
-      //   exit_flag = true;
+      } while(iter_count < 100 && exit_flag == false);
 
-      //   for(int i = 0; i < size; i++)
-      //      if(abs(xk[i] - xk1[i]) > 1e-16)
-      //         exit_flag = false;
-
-      //   xk = xk1;
-      //   iter_count++;
-
-      //} while(iter_count < 100 && exit_flag == false);
-
-      //return iter_count;
+      fout << endl;
+      return iter_count;
    }
 };

@@ -143,7 +143,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DanPshen.h" />
-    <ClInclude Include="Function.h" />
     <ClInclude Include="Lab2Data.h" />
     <ClInclude Include="Newton.h" />
     <ClInclude Include="Vector.h" />
