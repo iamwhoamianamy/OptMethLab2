@@ -19,7 +19,7 @@ public:
 
    vector<double> Sk;          // Напрвление поиска
 
-   int f_calc_count = 0;      // Число вычислений функции
+   int f_calc_count = 0;       // Число вычислений функции
 
    Newton() : size(2)
    {

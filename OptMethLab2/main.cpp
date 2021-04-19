@@ -37,7 +37,7 @@ int main()
    {
       int iter_count = dp.FindExtremum(f2, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -10), _f);
       fout << setw(14) << "x0 : (2, 5)" << setw(12) << "10e" << i << setw(14) << iter_count << setw(14) << dp.f_calc_count;
-      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f1(dp.xk) << endl;
+      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f2(dp.xk) << endl;
    }
    fout.close();
 
@@ -47,9 +47,9 @@ int main()
    fout << setw(14) << "func. calc" << setw(14) << "x" << setw(14) << "y" << setw(14) << "f" << endl;
    for(int i = -3; i >= -7; i--)
    {
-      int iter_count = dp.FindExtremum(f3, FindMaxArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), _f);
+      int iter_count = dp.FindExtremum(neg_f3, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), _f);
       fout << setw(14) << "x0 : (2, 5)" << setw(12) << "10e" << i << setw(14) << iter_count << setw(14) << dp.f_calc_count;
-      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f1(dp.xk) << endl;
+      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f3(dp.xk) << endl;
    }
    fout.close();
 
@@ -64,7 +64,7 @@ int main()
    {
       int iter_count = nt.FindExtremum(f1, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), _f);
       fout << setw(14) << "x0 : (2, 5)" << setw(12) << "10e" << i << setw(14) << iter_count << setw(14) << nt.f_calc_count;
-      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f1(dp.xk) << endl;
+      fout << setw(14) << nt.xk[0] << setw(14) << nt.xk[0] << setw(14) << f1(nt.xk) << endl;
    }
    fout.close();
 
@@ -76,7 +76,7 @@ int main()
    {
       int iter_count = nt.FindExtremum(f2, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -10), _f);
       fout << setw(14) << "x0 : (2, 5)" << setw(12) << "10e" << i << setw(14) << iter_count << setw(14) << nt.f_calc_count;
-      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f1(dp.xk) << endl;
+      fout << setw(14) << nt.xk[0] << setw(14) << nt.xk[0] << setw(14) << f2(nt.xk) << endl;
    }
    fout.close();
 
@@ -86,9 +86,9 @@ int main()
    fout << setw(14) << "func. calc" << setw(14) << "x" << setw(14) << "y" << setw(14) << "f" << endl;
    for(int i = -3; i >= -7; i--)
    {
-      int iter_count = nt.FindExtremum(f3, FindMaxArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), _f);
+      int iter_count = nt.FindExtremum(neg_f3, FindMinArgGolden, x0, pow(10, i), pow(10, i), pow(10, -1), _f);
       fout << setw(14) << "x0 : (2, 5)" << setw(12) << "10e" << i << setw(14) << iter_count << setw(14) << nt.f_calc_count;
-      fout << setw(14) << dp.xk[0] << setw(14) << dp.xk[0] << setw(14) << f1(dp.xk) << endl;
+      fout << setw(14) << nt.xk[0] << setw(14) << nt.xk[0] << setw(14) << f3(nt.xk) << endl;
    }
    fout.close();
 
@@ -103,14 +103,14 @@ int main()
    fout << "f2" << endl;
    dp.FindExtremum(f2, FindMinArgGolden, x0, 0.001, 0.001, pow(10, -10), fout);
    fout << "f3" << endl;
-   dp.FindExtremum(f3, FindMaxArgGolden, x0, 0.001, 0.001, pow(10, -1), fout);
+   dp.FindExtremum(neg_f3, FindMinArgGolden, x0, 0.001, 0.001, pow(10, -1), fout);
    fout << "Method: Newton" << endl;
    fout << "f1" << endl;
    nt.FindExtremum(f1, FindMinArgGolden, x0, 0.001, 0.001, pow(10, -1), fout);
    fout << "f2" << endl;
    nt.FindExtremum(f2, FindMinArgGolden, x0, 0.001, 0.001, pow(10, -10), fout);
    fout << "f3" << endl;
-   nt.FindExtremum(f3, FindMaxArgGolden, x0, 0.001, 0.001, pow(10, -1), fout);
+   nt.FindExtremum(neg_f3, FindMinArgGolden, x0, 0.001, 0.001, pow(10, -1), fout);
    fout.close();
 
    int asd = 1111;
