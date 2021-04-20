@@ -101,7 +101,7 @@ public:
       int iter_count = 0;
       do
       {
-         CalcHessian(funct, xk, 1e-3);
+         CalcHessian(funct, xk, 1e-1);
          f_calc_count += 11;
          CalcInverseHessian();
 

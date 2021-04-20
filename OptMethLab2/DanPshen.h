@@ -52,7 +52,7 @@ public:
       fout << setw(14) << "x" << setw(14) << "y" << setw(14) << "f(x, y)";
       fout << setw(14) << "Sx" << setw(14) << "Sy" << setw(14) << "lambda";
       fout << setw(14) << "|xk - x(k-1)|" << setw(14) << "|yk - y(k-1)|" << setw(14) << "|fk - f(k-1)|";
-      fout << setw(14) << "angle" << endl;
+      fout << setw(14) << "angle" << setw(14) << "grad(f)x" << setw(14) << "grad(f)y" << endl;
 
       bool exit_flag;
       int iter_count = 0;
@@ -66,18 +66,19 @@ public:
          // Получение нового приближения
          xk1 = xk + lambda * Sk;
 
+         // 3. Вычисление grad(f(xk1)) и весового коэффициента omega
+         CalcGrad(funct, xk1, grad_xk1, grad_eps);
+         f_calc_count += 4;
+
          // Блок вывода
          fout << fixed << setw(3) << iter_count + 1;
          fout << scientific;
          fout << setw(14) << xk1[0] << setw(14) << xk1[1] << setw(14) << funct(xk1);
          fout << setw(14) << Sk[0] << setw(14) << Sk[1] << setw(14) << lambda;
          fout << setw(14) << abs(xk1[0] - xk[0]) << setw(14) << abs(xk1[1] - xk[1]) << setw(14) << funct(xk1) - funct(xk);
-         fout << setw(14) << acos((xk1[0] * Sk[0] + xk1[1] * Sk[1]) / (Norm(xk1) * Norm(Sk))) * 180 / PI << endl;
+         fout << setw(14) << acos((xk1[0] * Sk[0] + xk1[1] * Sk[1]) / (Norm(xk1) * Norm(Sk))) * 180 / PI;
+         fout << setw(14) << grad_xk1[0] << setw(14) << grad_xk1[1] << endl;
 
-         // 3. Вычисление grad(f(xk1)) и весового коэффициента omega
-         CalcGrad(funct, xk1, grad_xk1, grad_eps);
-         f_calc_count += 4;
-         //gradf1(xk1, grad_xk1);
 
          //double omega = (grad_xk1 * (grad_xk1 + Sk)) / (-1 * (Sk * Sk));
          double omega = (grad_xk1 * grad_xk1) / (Sk * Sk);
